@@ -1,107 +1,54 @@
-#Password for dashboard is 1231
+# Custom Recipe Manager
 
-# Trello Billboard 
-This is trello billboard I made to track what is done, in-progress, or needs to be done on the project. It would be helpful to join divy up roles or claim tasks.
+## Collaborators
 
-https://trello.com/invite/b/683d579b701945dcff321286/ATTI43426be29fcc9504d8627a654224fd7666297C0A/183-custom-recipie-manager
+I was responsible for the core application design, creating, searching, displaying, and securely allowing users to edit recipes. Below are the contributors and their main areas of work:
 
-# Final project
+- [Sharif262](https://github.com/Sharif262) – Image support, unique entry handling, navigation bar styling
+- [pennmaster2207](https://github.com/pennmaster2207) – Profiles page, favorites page layout and logic
+- [prootus](https://github.com/prootus) – Calorie computation logic, ingredient scaling by servings
+- [UCSC-anromo](https://github.com/UCSC-anromo) – Recipe data import from TheMealDB, ingredient search functionality
+- [SeanGrayCS](https://github.com/SeanGrayCS) – Debugging and general testing assistance
 
-You will work on the final project in groups.
-Use https://canvas.ucsc.edu/courses/82493/pages/final-project-groups to join a group
 
-You must use py4web for serverside. You can use the css library of your choice.
-You are not required to use a client-side framework but you can.
 
-Part of your grade includes:
-- usability
-- code quality
-- security / vulnerabilities
-- individual contribution to the project (commits)
 
-## How do I use this?
+Custom Recipe Manager is a web-based application built with [py4web](https://py4web.com/) that allows users to create, browse, and share cooking recipes. Users can add ingredients with detailed nutritional info, manage their personal recipe collection, and explore public recipes made by others.
 
-### Setup
-1. Clone the repository to your local machine.
-2. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-3. Start the server:
-   ```
-   python -m py4web run apps
-   ```
-4. Open your browser and go to: [http://localhost:8000/Proj19](http://localhost:8000/Proj19)
+## Features
 
-### Basic Usage
-- **Register** for an account or **log in** if you already have one.
-- Use the navigation bar to:
-  - Go to the Home page
-  - Browse all recipes
-  - Create a new recipe
-  - View your profile and your saved recipes
-- **Create a Recipe:**
-  - Click "Create Recipe" in the navbar
-  - Fill in the recipe details, add ingredients, and directions
-  - Save your recipe
-- **Browse/Search Recipes:**
-  - Use the Recipes page to search by name or type
-  - Click on a recipe to view details
-- **Add Ingredients:**
-  - When creating a recipe, you can add new ingredients if they don't already exist
-- **Edit Recipes:**
-  - You can only edit recipes you have authored
+- User registration and login
+- Public feed of all recipes
+- Create, view, edit, and delete recipes
+- Add new ingredients with detailed nutrition
+- Search recipes by name, type, author, or ingredients
+- Favorite recipes and view them on a dedicated page
+- Automatically calculate total calories per recipe
+- Profiles with bio and saved recipe stats
+- Import recipes from [TheMealDB](https://www.themealdb.com/)
 
-For more details, see the PDF instructions and screenshots included with the project.
+## Getting Started
 
-## Project Option I - Custom Recipe Manager
+### Requirements
 
-You will develop a web-based recipe manager that allows users to create, browse, and share recipes. This is a database-driven application that must include user accounts and support for searching and managing shared ingredients and recipes.
+- Python 3.8+
+- pip
 
-### Minimum Requirements (for a passing grade)
-Your app must include the following features:
+### Installation
 
-Database Schema:
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd <your-project-directory>
 
-- A table for ingredients with fields: name, unit, calories_per_unit, description
-- A table for recipes with fields: name, type, description, image, author, instruction_steps, servings
-- A linking table to connect recipes and ingredients, with fields: recipe_id, ingredient_id, quantity_per_serving
+# Install dependencies
+pip install -r requirements.txt
 
-Functionality:
+# Run the py4web server
+python -m py4web run apps
 
-- Ability to search ingredients by name.
-- Ability to add new ingredients.
-- Ingredients are shared across users and cannot be edited once created.
-- Ability to search recipes by name and type.
-- All recipes are public.
-- Ability to create new recipes.
-- Ability to edit recipes authored by the logged-in user only.
-- Users cannot edit others' recipes.
 
-Documentation:
+# Access the App
+Once the server is running, open your browser and go to:
+http://localhost:8000/Proj19
 
-- A PDF with instructions and screenshots showing functionality
-
-### Requirements for Full Grade
-
-To earn full credit, your app must include all of the above, plus:
-
-- Import data from TheMealDB API to populate recipes (import only once; the import code must be included).
-- A professional, self-documenting, and intuitive user interface.
-- A public search API for recipes (JSON format).
-- Secure recipe editing logic: only allow authors to modify their own recipes.
-- Automatically compute total calories per recipe based on ingredients and quantities.
-
-### Optional Features (for extra credit)
-
-Implementing any of the following will earn you bonus points:
-- Support for multiple images per recipe.
-- Ability to search recipes by ingredients (any subset).
-- A public search API for ingredients.
-- Store additional nutritional info beyond just calories.
-- Automatically scale ingredients when changing number of servings.
-
-### Conventions to follow
-- Our code is expected to be self documenting meaning that it should be clear WHAT and HOW the code does what it does. Comments should explain WHY we're doing it. If you were to come back to this code a year from now and ask yourself "Why did I do this?", the answer to that would make a good comment!
-- When choosing a task from the trello board to work on, create a card titled "{Your Name}'s working on" and drag the task to that card. When you're done, drag that task to the card labeled "DONE".
-- If your code requires modification to someone else's code, communicate with them BEFOREHAND. This will save a lot of potential headache!
