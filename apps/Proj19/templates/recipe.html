@@ -1,0 +1,417 @@
+[[extend "layout.html"]]
+<!-- Resources -->
+<!-- https://bulma.io/documentation/form/general/ -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .dark-input:focus {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    }
+
+    figure.image img.is-rounded {
+        border-radius: 4px;
+    }
+
+    body {
+        background-color: rgb(19, 20, 21);
+        color: rgb(222, 219, 214);
+    }
+
+
+</style>
+
+<div id="recipe-app">
+    <div class="is-flex is-justify-content-flex-end">
+        <button v-if="author" @click="toggle_edit_mode" class="button is-success mr-2">Edit Recipe</button>
+        <button v-if="!author" @click="toggle_favorite" class="button" :class="{'is-danger': is_favorite, 'is-light': !is_favorite}">
+            <span class="icon">
+                <i class="fas fa-heart"></i>
+            </span>
+            <span>{{ is_favorite ? 'Remove from Favorites' : 'Add to Favorites' }}</span>
+        </button>
+    </div>
+
+    <section>
+        <div class="container">
+            <div class="field">
+                <div class="control">
+                    <div v-if="edit_mode">
+                        <p class="title is-size-4 has-text-white">Recipe Title</p>
+                        <input class="title input dark-input is-size-4" type="text" v-model="new_recipe.name"
+                            placeholder="Recipe Name">
+                    </div>
+                    <div v-else>
+                        <p class="title is-size-4 has-text-white">{{ new_recipe.name }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <p class="subtite is-size-6 has-text-white">Made by {{ new_recipe.author }}</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="field">
+                <div class="control">
+                    <div v-if="edit_mode">
+                        <p class="title is-size-4 has-text-white">Type</p>
+                        <input class="input" type="text" v-model="new_recipe.type"
+                            placeholder="American? Mexican? European?">
+                    </div>
+                    <div v-else>
+                        <div class="is-flex is-align-items-center">
+                            <p class="title is-size-5 has-text-white mr-3">Type:</p>
+                            <p class="subtitle is-size-6 has-text-white">{{ new_recipe.type }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <div v-if="edit_mode">
+                        <p class="title is-size-4 has-text-white">Description</p>
+                        <textarea class="title textarea dark-input is-size-6" rows="5" v-model="new_recipe.description"
+                            placeholder="Description"></textarea>
+                    </div>
+                    <div v-else>
+                        <p class="title is-size-4 has-text-white">Description</p>
+                        <p class="subtite is-size-6">{{ new_recipe.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- In progress search bar from bulma -->
+    <div class="container" v-if="edit_mode">
+        <div class="field has-addons is-justify-content-center is-flex">
+            <div class="control">
+
+                <div class="columns">
+
+                    <div class="column">
+                        <input class="input" type="text" placeholder="Search Ingredient" v-model="new_ingredient.name"
+                            @input="search_ingredient" />
+
+                        <div class="cond" v-if="matched_ingredients">
+                            <div class="dropdown is-active" v-if="matched_ingredients.length">
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-content">
+                                        <a v-for="ingredient in matched_ingredients" :key="ingredient.id"
+                                            class="dropdown-item" @click="selectIngredient(ingredient)">
+                                            {{ ingredient.name }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <input class="input" type="number" step="any" placeholder="Quantity per Serving"
+                            v-model.number="new_link.quantity_per_serving" /> <!-- changed v-model to v-model.number-->
+                    </div>
+                </div>
+
+            </div>
+            <div class="control">
+                <button class="button is-info" @click="store_ingredient">
+                    Add
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="has-text-centered mt-4" v-if="edit_mode">
+        Ingredient Not Listed?
+        <button class="is-underlined is-size-6 no-border" @click="toggle_IM">
+            Add Ingredient
+        </button>
+    </div>
+    <section>
+        <section class="section has-text-white" v-if="show_IM">
+            <div class="container">
+                <h3 class="title is-4 has-text-white">Add Ingredient</h3>
+
+                <form v-on:submit.prevent="add_ingredient">
+                    <div class="field">
+                        <label class="label has-text-white">Name</label>
+                        <div class="control">
+                            <input class="input" type="text" required v-model="new_ingredient.name"
+                                placeholder="ex. sugar? spice?">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Unit (g)</label>
+                        <div class="control">
+                            <input class="input" type="number" v-model="new_ingredient.unit" placeholder="ex. 100">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Calories per Unit (g)</label>
+                        <div class="control">
+                            <input class="input" type="number" v-model="new_ingredient.calories_per_unit"
+                                placeholder="ex. 31">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Description</label>
+                        <div class="control">
+                            <input class="input" type="text" v-model="new_ingredient.description"
+                                placeholder="ex. 1. Bake the cake! 2. Eat ">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Cholesterol (mg)</label>
+                        <div class="control">
+                            <input class="input" type="number" v-model="new_ingredient.cholesterol"
+                                placeholder="ex. 170 ">
+                        </div>
+
+                        <div class="field">
+                            <label class="label has-text-white">Sodium (mg)</label>
+                            <div class="control">
+                                <input class="input" type="number" v-model="new_ingredient.sodium"
+                                    placeholder="ex. 400">
+                            </div>
+                        </div>
+
+                        <div class="field ">
+                            <label class="label has-text-white">Total Carbohydrates (g)</label>
+                            <div class="control">
+                                <input class="input" type="number" v-model="new_ingredient.total_carbohydrate"
+                                    placeholder="ex. 23">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label has-text-white">Protein (g)</label>
+                            <div class="control">
+                                <input class="input" type="number" v-model="new_ingredient.protein" placeholder="ex. 3">
+                            </div>
+                        </div>
+
+                        <div class="field mt-4">
+                            <div class="control has-text-centered">
+                                <button class="button is-link" type="submit">Add Ingredient</button>
+                            </div>
+                        </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Add servings here -->
+        <section>
+            <div class="hero-body">
+                <!-- Calories -->
+                <div v-if="recipe_calories" style="margin: 20px 0;">
+                    <h3 class="title is-5 mb-4">Nutrition</h3>
+                    <!-- PER SERVING -->
+                    <div>
+                        <h4 class="subtitle is-6 has-text-weight-semibold mb-2">Per Serving</h4>
+                        <ul class="mb-5">
+                            <li>{{ recipe_calories.calories_per_serving }} calories</li>
+                            <li>{{ recipe_calories.chol_per_serving }} mg cholesterol</li>
+                            <li>{{ recipe_calories.sodium_per_serving }} mg sodium</li>
+                            <li>{{ recipe_calories.carbs_per_serving }} g carbs</li>
+                            <li>{{ recipe_calories.protein_per_serving }} g protein</li>
+                        </ul>
+                    </div>
+
+                    <!-- TOTALS -->
+                     <div class="mt-5" v-if="scaled_nutrition">
+                        <h4 class="subtitle is-6 has-text-weight-semibold mb-2">
+                            Total ({{ display_servings }} servings)
+                        </h4>
+                        <ul>
+                            <li>{{ scaled_nutrition.total_calories }} calories</li>
+                            <li>{{ scaled_nutrition.total_chol }} mg cholesterol</li>
+                            <li>{{ scaled_nutrition.total_sodium }} mg sodium</li>
+                            <li>{{ scaled_nutrition.total_carbs }} g carbs</li>
+                            <li>{{ scaled_nutrition.total_protein }} g protein</li>
+                        </ul>
+                     </div>
+                </div>
+
+                <div class="columns">
+                    <div class="column">
+                        <p class="title is-4 has-text-white">Directions</p>
+                        <div class="field">
+                            <div class="control">
+                                <div v-if="edit_mode">
+                                    <textarea class="textarea subtitle" v-model="new_recipe.instruction_steps"
+                                        placeholder="First boil the cabbage!"></textarea>
+                                </div>
+                                <div v-else>
+                                    <p class="is-size-6">{{ new_recipe.instruction_steps }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <p class="title is-4 has-text-white">Ingredients</p>
+                        <div class="field">
+                            <div class="control">
+                                <div class="mb-2">
+                                    <label for="servings-input" class="has-text-white">Servings:</label>
+                                    <input id="servings-input" type="number" min="1" v-model.number="display_servings" class="input is-small ml-2" style="width: 80px; display: inline-block;" />
+                                    <span class="ml-2">(Adjust to scale ingredients)</span>
+                                </div>
+                                <div class="ml-4">
+                                    <li v-for="link in all_links" :key="link.id"> <!-- before (v-for="link in db_links.concat(local_links)" :key="link.ingredient_id")-->
+                                        {{ get_ingredient_name_by_id(link.ingredient_id) }} - Quantity: {{ scale_quantity(link.quantity_per_serving) }}
+                                    </li>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field has-text-centered mt-4">
+                    <div class="control">
+
+                        <div v-if="edit_mode">
+                            <button class="button is-link " @click="save_recipe">Save Recipe</button>
+                        </div>
+                        <div v-else>
+                            <!-- <button class="button is-link ">Favorite Recipe!</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+        
+        <!-- Main Recipe Image -->
+        <figure class="image is-3by2 mb-4">
+            <!-- In edit mode: show temp preview if available, otherwise show saved images -->
+            <img v-if="edit_mode && temp_image_preview" 
+                 :src="temp_image_preview" 
+                 style="object-fit: cover; width: 100%; height: 100%;">
+            <!-- In view mode or edit mode without temp preview: show saved images -->
+            <img v-else-if="recipe_images.length > 0" 
+                 :src="recipe_images[0].image" 
+                 style="object-fit: cover; width: 100%; height: 100%;">
+            <!-- Fallback placeholder -->
+            <img v-else 
+                 src="https://bulma.io/assets/images/placeholders/128x128.png">
+        </figure>
+
+        <!-- Small Image Gallery -->
+        <div class="columns is-mobile">
+            <!-- First thumbnail -->
+            <div class="column is-one-quarter">
+                <figure class="image is-square">
+                    <!-- In edit mode: show temp preview if available, otherwise show saved images -->
+                    <img v-if="edit_mode && temp_image_preview" 
+                         :src="temp_image_preview" 
+                         class="is-rounded" 
+                         style="object-fit: cover; width: 100%; height: 100%;">
+                    <!-- In view mode or edit mode without temp preview: show saved images -->
+                    <img v-else-if="recipe_images.length > 0" 
+                         :src="recipe_images[0].image" 
+                         class="is-rounded" 
+                         style="object-fit: cover; width: 100%; height: 100%;">
+                    <!-- Fallback placeholder -->
+                    <img v-else 
+                         class="is-rounded" 
+                         src="https://bulma.io/assets/images/placeholders/128x128.png">
+                </figure>
+            </div>
+            
+            <!-- Additional thumbnails for more images (future expansion) -->
+            <div class="column is-one-quarter">
+                <figure class="image is-square">
+                    <img v-if="recipe_images.length > 1" 
+                         :src="recipe_images[1].image" 
+                         class="is-rounded" 
+                         style="object-fit: cover; width: 100%; height: 100%;">
+                    <img v-else 
+                         class="is-rounded" 
+                         src="https://bulma.io/assets/images/placeholders/128x128.png">
+                </figure>
+            </div>
+            <div class="column is-one-quarter">
+                <figure class="image is-square">
+                    <img v-if="recipe_images.length > 2" 
+                         :src="recipe_images[2].image" 
+                         class="is-rounded" 
+                         style="object-fit: cover; width: 100%; height: 100%;">
+                    <img v-else 
+                         class="is-rounded" 
+                         src="https://bulma.io/assets/images/placeholders/128x128.png">
+                </figure>
+            </div>
+            <div class="column is-one-quarter">
+                <figure class="image is-square">
+                    <img v-if="recipe_images.length > 3" 
+                         :src="recipe_images[3].image" 
+                         class="is-rounded" 
+                         style="object-fit: cover; width: 100%; height: 100%;">
+                    <img v-else 
+                         class="is-rounded" 
+                         src="https://bulma.io/assets/images/placeholders/128x128.png">
+                </figure>
+            </div>
+        </div>
+
+        <!-- Upload Photo Button (edit mode only) -->
+        <div v-if="edit_mode" class="mb-4 has-text-centered">
+            <div class="file has-name is-centered">
+                <label class="file-label">
+                    <input ref="fileInput" class="file-input" type="file" @change="handle_recipe_image_selection" accept="image/*" multiple>
+                    <span class="file-cta has-background-link has-text-white">
+                        <span class="file-icon">
+                            <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">
+                            Upload Photo
+                        </span>
+                    </span>
+                    <span class="file-name" v-if="selected_file">
+                        {{ selected_file.name }}
+                    </span>
+                </label>
+            </div>
+            <p style="color: #ff3860; margin-top: 1em;">
+                You can apply multiple images through the following: go to view my recipe, click edit, then upload photo
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+      <a href="[[=URL('index')]]#recipes" class="button is-info">View My Recipes</a>
+    </div>
+
+    <script> //there has to be a better way to do this 
+        const recipe_id = "[[=id or '']]";
+        const start_edit_mode = "[[=edit_mode]]" === "True";
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+
+    <script src="/Proj19/static/js/recipe.js"></script>
+
+    [[if globals().get('recipe_saved') and globals().get('saved_recipe_id'):]]
+      <div class="notification is-success mt-4">
+        Recipe saved successfully!
+        <a href="[[=URL('recipe', saved_recipe_id)]]" class="button is-link ml-3">View Recipe</a>
+      </div>
+    [[pass]]
+</div>

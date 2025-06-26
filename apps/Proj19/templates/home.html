@@ -1,0 +1,221 @@
+[[extend 'layout.html']]
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+
+<style>
+  body {
+    background-color: rgb(19, 20, 21);
+    color: rgb(222, 219, 214);
+  }
+
+  .hero {
+    background-color: #ffdd57;
+    color: #222;
+    padding: 3rem 0;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+
+  .cta-button {
+    margin-top: 1rem;
+  }
+
+  .author-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffdd57;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .author-profile-pic:hover {
+    transform: scale(1.1);
+    border-color: #ffd83d;
+  }
+
+  .recipe-author-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .featured-card {
+    height: 100%;
+    background-color: rgb(32, 34, 37);
+    border: 1px solid #333;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .featured-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(255, 221, 87, 0.2);
+  }
+
+  .card-content {
+    color: rgb(222, 219, 214);
+  }
+
+  .no-recipes-card {
+    background-color: rgb(32, 34, 37);
+    border: 2px dashed #ffdd57;
+    text-align: center;
+    padding: 2rem;
+  }
+</style>
+
+<div class="hero">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="hero-title">Welcome to Recipe Manager</h1>
+      <p class="hero-subtitle">Your go-to place for managing and sharing recipes.</p>
+      <a href="/Proj19/recipe" class="button is-dark cta-button">Create a Recipe</a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <h2 class="title has-text-white">Featured Recipes</h2>
+    
+    [[if has_recipes:]]
+    <div class="columns">
+      [[for recipe in featured_recipes:]]
+      <div class="column">
+        <div class="card featured-card">
+          <div class="card-content">
+            <div class="recipe-author-section">
+              [[if recipe.get('author_exists', False):]]
+                <a href="/Proj19/profile/[[=recipe['author']]]">
+                  <img src="[[=recipe['author_profile_picture']]]" 
+                       class="author-profile-pic" 
+                       alt="[[=recipe['author']]] profile picture"
+                       title="View [[=recipe['author']]]'s profile">
+                </a>
+                <a href="/Proj19/profile/[[=recipe['author']]]" class="has-text-weight-semibold has-text-white">
+                  [[=recipe['author']]]
+                </a>
+              [[else:]]
+                <img src="[[=recipe['author_profile_picture']]]" 
+                     class="author-profile-pic" 
+                     alt="[[=recipe['author']]] profile picture"
+                     style="cursor: default;"
+                     title="External recipe source">
+                <span class="has-text-weight-semibold has-text-grey-light">
+                  [[=recipe['author']]]
+                </span>
+              [[pass]]
+            </div>
+            
+            <p class="title is-5 has-text-white mb-3">[[=recipe['name']]]</p>
+            <p class="subtitle is-6 has-text-grey-light mb-3">
+              [[if recipe['description']:]]
+                [[=recipe['description'][:100]]][[if len(recipe['description']) > 100:]]...[[pass]]
+              [[else:]]
+                No description available
+              [[pass]]
+            </p>
+            
+            <div class="is-flex is-justify-content-space-between is-align-items-center">
+              <a href="/Proj19/recipe/[[=recipe['id']]]" class="button is-warning is-small">
+                View Recipe
+              </a>
+              <div>
+                [[if recipe['servings']:]]
+                <span class="tag is-info is-light">[[=recipe['servings']]] servings</span>
+                [[pass]]
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      [[pass]]
+      
+      <!-- Fill remaining columns if less than 3 recipes -->
+      [[for i in range(3 - len(featured_recipes)):]]
+      <div class="column">
+        <div class="card no-recipes-card">
+          <div class="card-content">
+            <p class="title is-5 has-text-warning">Create More Recipes!</p>
+            <p class="subtitle is-6 has-text-white">
+              Share your culinary creations with the community
+            </p>
+            <a href="/Proj19/recipe" class="button is-warning mt-3">
+              <span class="icon">
+                <i class="fas fa-plus"></i>
+              </span>
+              <span>Add Recipe</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      [[pass]]
+    </div>
+    
+    [[else:]]
+    <!-- Show when no recipes exist -->
+    <div class="columns">
+      <div class="column is-8 is-offset-2">
+        <div class="card no-recipes-card">
+          <div class="card-content">
+            <div class="has-text-centered">
+              <span class="icon is-large has-text-warning mb-4">
+                <i class="fas fa-utensils fa-3x"></i>
+              </span>
+              <p class="title is-4 has-text-warning">No Recipes Yet!</p>
+              <p class="subtitle is-6 has-text-white mb-4">
+                Be the first to share a delicious recipe with the community.
+              </p>
+              <div class="buttons is-centered">
+                <a href="/Proj19/recipe" class="button is-warning is-medium">
+                  <span class="icon">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>Create First Recipe</span>
+                </a>
+                <a href="/Proj19/api/import" class="button is-info is-medium">
+                  <span class="icon">
+                    <i class="fas fa-download"></i>
+                  </span>
+                  <span>Import Sample Recipes</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    [[pass]]
+    
+    <!-- Quick action buttons -->
+    <div class="has-text-centered mt-6">
+      <div class="buttons is-centered">
+        <a href="/Proj19/index" class="button is-info is-medium">
+          <span class="icon">
+            <i class="fas fa-list"></i>
+          </span>
+          <span>Browse All Recipes</span>
+        </a>
+        [[if globals().get('user'):]]
+        <a href="/Proj19/favorites" class="button is-danger is-medium">
+          <span class="icon">
+            <i class="fas fa-heart"></i>
+          </span>
+          <span>My Favorites</span>
+        </a>
+        [[pass]]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>

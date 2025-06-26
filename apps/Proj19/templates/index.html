@@ -1,0 +1,215 @@
+[[extend 'layout.html']]
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+
+<style>
+  body {
+    background-color: rgb(19, 20, 21);
+    color: rgb(222, 219, 214);
+  }
+
+  .author-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffdd57;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .author-profile-pic:hover {
+    transform: scale(1.1);
+    border-color: #ffd83d;
+  }
+
+  .recipe-author-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .hero {
+    background-color: #ffdd57;
+    color: #222;
+    padding: 3rem 0;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+
+  .cta-button {
+    margin-top: 1rem;
+  }
+
+  /* Daniel - Favorite star styling */
+  .favorite-star {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    margin-left: 10px;
+  }
+
+  .favorite-star:hover {
+    transform: scale(1.2);
+  }
+
+  .favorite-star.favorited {
+    color: #ffdd57;
+  }
+
+  .favorite-star.not-favorited {
+    color: #ccc;
+  }
+</style>
+
+<div id="feedApp" class="section">
+
+  <section class="hero is-warning mb-4">
+    <div class="hero-body">
+
+      <div class="is-flex is-justify-content-space-between is-align-items-center">
+        <div>
+          <p class="title">[[ =message ]]</p>
+          <p class="subtitle">Custom Recipe Manager - CSE 183</p>
+        </div>
+        
+        <div>
+          <a href="/Proj19/profile" class="button is-dark is-medium">
+            <span class="icon">
+              <i class="fas fa-user"></i>
+            </span>
+            <span>Profile</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="field has-addons is-justify-content-center is-flex">
+      <div class="control">
+
+        <div class="field has-addons">
+          <p class="control">
+            <input class="input" type="text" placeholder="Find a recipe" v-model="message"
+              @input="search_item(filter)" />
+
+          </p>
+          <div class="dropdown" :class="{ 'is-active': dropdown_active }">
+            <div class="dropdown-trigger">
+              <button class="button" @click="toggle_dropdown" aria-haspopup="true"
+                aria-controls="dropdown-menu3">
+                <span>Filter by {{filter}}</span>
+                <span class="icon is-small">
+                  <i class="fas fa-angle-down" aria-hidden="true"></i>
+                </span>
+              </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu3" role="menu">
+              <div class="dropdown-content">
+                <a class="dropdown-item" @click="filter='recipe'; dropdown_active=false">Recipe</a>
+                <a class="dropdown-item" @click="filter='ingredient'; dropdown_active=false">Ingredient</a>
+                <a class="dropdown-item" @click="filter='author'; dropdown_active=false">Author</a>
+                <a class="dropdown-item" @click="filter='type'; dropdown_active=false">Type</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <button class="button is-warning" @click="create_recipe">Create Recipe</button>
+  </div>
+
+  <div v-if="matched_recipes">
+    <div v-for="r in matched_recipes" :key="r.id" class="card mb-8">
+      <header class="card-header">
+        <p class="card-header-title">
+          <button class="is-underlined" @click="view_recipe(r)">
+            <strong>{{r.name}} - Made by {{r.author}}</strong>
+          </button>
+          <!-- Daniel - Favorite star -->
+          <span class="favorite-star" 
+                :class="is_recipe_favorited(r.id) ? 'favorited' : 'not-favorited'" 
+                @click="toggle_favorite(r)" 
+                :title="is_recipe_favorited(r.id) ? 'Remove from favorites' : 'Add to favorites'">
+            <i class="fas fa-star"></i>
+          </span>
+        </p>
+      </header>
+      <div class="card-content">
+        <div class="content">
+          <div class="recipe-author-section">
+            <img :src="get_profile_picture(r)" 
+                 class="author-profile-pic" 
+                 :alt="r.author + ' profile picture'"
+                 @click="view_user_profile(r.author)"
+                 :title="'View ' + r.author + '\'s profile'">
+            <span class="has-text-weight-semibold">Made by {{ r.author }}</span>
+          </div>
+          
+          <strong>{{r.description}}</strong>
+          <div class="columns is-mobile">
+            <div class="column is-one-third">Type: {{ r.type }}</div>
+            <div class="column is-one-third">Servings: {{ r.servings }}</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-else>
+
+    <div v-for="r in all_recipes" :key="r.id" class="card mb-8">
+      <header class="card-header">
+        <p class="card-header-title">
+          <button class="is-underlined" @click="view_recipe(r)">
+            <strong>{{r.name}} - Made by {{r.author}}</strong>
+          </button>
+          <!-- Daniel - Favorite star -->
+          <span class="favorite-star" 
+                :class="is_recipe_favorited(r.id) ? 'favorited' : 'not-favorited'" 
+                @click="toggle_favorite(r)" 
+                :title="is_recipe_favorited(r.id) ? 'Remove from favorites' : 'Add to favorites'">
+            <i class="fas fa-star"></i>
+          </span>
+        </p>
+      </header>
+      <div class="card-content">
+        <div class="content">
+          <div class="recipe-author-section">
+            <img :src="get_profile_picture(r)" 
+                 class="author-profile-pic" 
+                 :alt="r.author + ' profile picture'"
+                 @click="view_user_profile(r.author)"
+                 :title="'View ' + r.author + '\'s profile'">
+            <span class="has-text-weight-semibold">Made by {{ r.author }}</span>
+          </div>
+          
+          <strong>{{r.description}}</strong>
+          <div class="columns is-mobile">
+            <div class="column is-one-third">Type: {{ r.type }}</div>
+            <div class="column is-one-third">Servings: {{ r.servings }}</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+<script src="/Proj19/static/js/index.js"></script>

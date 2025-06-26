@@ -1,0 +1,131 @@
+<!-- - New template for viewing other users' profiles -->
+[[extend 'layout.html']]
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+
+<style>
+    body {
+        background-color: rgb(19, 20, 21);
+        color: rgb(222, 219, 214);
+    }
+
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ffdd57;
+    }
+
+    .profile-section {
+        background-color: rgb(32, 34, 37);
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+</style>
+
+<!--- User Profile Viewing Page -->
+<div class="section">
+    <section class="hero is-warning mb-4">
+        <div class="hero-body">
+            <div class="is-flex is-justify-content-space-between is-align-items-center">
+                <div>
+                    <p class="title">[[=target_user.username]]'s Profile</p>
+                    <p class="subtitle">[[if is_own_profile:]]Your Profile[[else:]]User Profile[[pass]]</p>
+                </div>
+                
+                <!--- Edit button only if viewing own profile -->
+                [[if is_own_profile:]]
+                <div>
+                    <a href="/Proj19/profile" class="button is-dark is-medium">
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span>Edit Profile</span>
+                    </a>
+                </div>
+                [[pass]]
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-8">
+                
+                <!-- - Profile Picture Section -->
+                <div class="profile-section has-text-centered">
+                    <div class="mb-4">
+                        <div class="profile-picture-container">
+                            [[if user_profile.profile_picture:]]
+                                <img src="[[=user_profile.profile_picture]]" 
+                                     class="profile-picture" 
+                                     alt="[[=target_user.username]]'s Profile Picture">
+                            [[else:]]
+                                <img src="https://bulma.io/assets/images/placeholders/128x128.png" 
+                                     class="profile-picture" 
+                                     alt="Default Profile Picture">
+                            [[pass]]
+                        </div>
+                    </div>
+                </div>
+
+                <!--  - Profile Information Section -->
+                <div class="profile-section">
+                    <h2 class="title is-4 has-text-white">Profile Information</h2>
+
+                    <div class="field">
+                        <label class="label has-text-white">Display Name</label>
+                        <div class="control">
+                            <p class="has-text-white is-size-5">
+                                [[=user_profile.name or 'No name set']]
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Username</label>
+                        <div class="control">
+                            <p class="has-text-white is-size-5">
+                                [[=target_user.username]]
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Bio</label>
+                        <div class="control">
+                            <div class="has-text-white">
+                                [[if user_profile.bio:]]
+                                    <p style="white-space: pre-wrap;">[[=user_profile.bio]]</p>
+                                [[else:]]
+                                    <p class="has-text-grey">No bio added yet</p>
+                                [[pass]]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h2 class="title is-4 has-text-white mb-4">[[=target_user.username]]'s Recipe Statistics</h2>
+                    <div class="columns is-mobile has-text-centered">
+                        <div class="column">
+                            <p class="title is-3 has-text-warning">[[=recipe_count]]</p>
+                            <p class="subtitle is-6 has-text-white">Recipes Created</p>
+                        </div>
+                        <div class="column">
+                            <p class="title is-3 has-text-warning">0</p>
+                            <p class="subtitle is-6 has-text-white">Favorites</p>
+                        </div>
+                        <div class="column">
+                            <p class="title is-3 has-text-warning">0</p>
+                            <p class="subtitle is-6 has-text-white">Reviews</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,92 @@
+[[extend 'layout.html']]
+
+<!-- Resources -->
+<!-- https://www.w3schools.com/vue/vue_forms.php -->
+
+
+
+<div id="app" class="section">
+  <h1> This is probably gonna be an admin page to test stuff </h1>
+  <h2>[[ =message ]]</h2>
+
+  <hr style="border: 1px solid black;">
+
+  <h3> Create Recipe </h3>
+  <form v-on:submit.prevent="add_recipe">
+    <p> Name: </p>
+    <p><input type="text" required v-model="new_recipe.name"> </p>
+    <p> Type: </p>
+    <p><input type="text" v-model="new_recipe.type"> </p>
+    <p> Description: </p>
+    <p><input type="text" required v-model="new_recipe.description"> </p>
+    <p> Author:</p>
+    <p> <input type="text" required v-model="new_recipe.author"> </p>
+    <p> Instruction Steps:</p>
+    <p> <input type="text" v-model="new_recipe.instruction_steps"> </p>
+    <p> Servings: </p>
+    <p><input type="number" v-model="new_recipe.servings"> </p>
+    <button type="submit">Add recipe</button>
+  </form>
+
+  <h3> Create Ingredient </h3>
+  <form v-on:submit.prevent="add_ingredient">
+    <p> Name: </p>
+    <p><input type="text" required v-model="new_ingredient.name"> </p>
+    <p> Unit: </p>
+    <p><input type="text" v-model="new_ingredient.unit"> </p>
+    <p> Calories Per Unit: </p>
+    <p> <input type="text" required v-model="new_ingredient.calories_per_unit"> </p>
+    <p> Description: </p>
+    <p><input type="text" required v-model="new_ingredient.description"> </p>
+    <p> Total fat: </p>
+    <p><input type="text" v-model="new_ingredient.total_fat"> </p>
+    <p> Cholesterol:</p>
+    <p> <input type="number" v-model="new_ingredient.cholesterol"> </p>
+    <p> Sodium: </p>
+    <p><input type="text" required v-model="new_ingredient.sodium"> </p>
+    <p> Total Carbs: </p>
+    <p><input type="text" v-model="new_ingredient.total_carbohydrate"> </p>
+    <p> Protein: </p>
+    <p><input type="number" v-model="new_ingredient.protein"> </p>
+    <button type="submit">Add Ingredient</button>
+  </form>
+
+
+  <h3>Recipes:</h3>
+  <ul>
+    <li v-for="r in recipes" :key="r.id">
+      <strong>{{ r.name }}</strong>
+      <div style="padding-left: 20px;">
+        Type: {{ r.type }}<br>
+        Description: {{ r.description }} <br>
+        Author: {{ r.author }} <br>
+        Instruction Steps: {{ r.instruction_steps }} <br>
+        Servings: {{ r.servings }}<br>
+      </div>
+    </li>
+  </ul>
+
+  <h3>Ingredients:</h3>
+  <ul>
+    <li v-for="i in ingredients" :key="i.id">
+      <strong>{{ i.name }}</strong>
+      <div style="padding-left: 20px;">
+        Unit: {{ i.unit }}<br>
+        Calories Per Unit: {{ i.calories_per_unit }}<br>
+        Description: {{ i.description }}
+      </div>
+    </li>
+  </ul>
+</div>
+
+<hr style="border: 1px solid black;">
+
+<h3>Update Ingredient Calories</h3>
+<p>Add calorie data to existing ingredients (run this after creating recipes)</p>
+<button @click="update_calories" class="button is-primary">Update Calorie Data</button>
+<p v-if="calorie_update_message" style="color: green; margin-top: 10px;">
+    {{ calorie_update_message }}
+</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+<script src="/Proj19/static/js/admin.js"></script>

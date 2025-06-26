@@ -1,0 +1,165 @@
+[[extend 'layout.html']]
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+
+<style>
+  body {
+    background-color: rgb(19, 20, 21);
+    color: rgb(222, 219, 214);
+  }
+
+  .author-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffdd57;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .author-profile-pic:hover {
+    transform: scale(1.1);
+    border-color: #ffd83d;
+  }
+
+  .recipe-author-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .hero {
+    background-color: #ffdd57;
+    color: #222;
+    padding: 3rem 0;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+
+  .cta-button {
+    margin-top: 1rem;
+  }
+
+  /* Daniel - Favorite star styling */
+  .favorite-star {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    margin-left: 10px;
+  }
+
+  .favorite-star:hover {
+    transform: scale(1.2);
+  }
+
+  .favorite-star.favorited {
+    color: #ffdd57;
+  }
+
+  .favorite-star.not-favorited {
+    color: #ccc;
+  }
+</style>
+
+<div id="favoritesApp" class="section">
+
+  <section class="hero is-warning mb-4">
+    <div class="hero-body">
+      <div class="is-flex is-justify-content-space-between is-align-items-center">
+        <div>
+          <p class="title">My Favorite Recipes</p>
+          <p class="subtitle">Your saved recipes all in one place</p>
+        </div>
+        
+        <div>
+          <a href="/Proj19/profile" class="button is-dark is-medium">
+            <span class="icon">
+              <i class="fas fa-user"></i>
+            </span>
+            <span>Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="field has-addons is-justify-content-center is-flex">
+      <div class="control">
+        <div class="field has-addons">
+          <p class="control">
+            <input class="input" type="text" placeholder="Search your favorites" v-model="search_message"
+              @input="search_favorites" />
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <a href="/Proj19/recipe" class="button is-warning">Create Recipe</a>
+  </div>
+
+  <!-- Daniel - Display message when no favorites -->
+  <div v-if="favorite_recipes.length === 0 && !loading" class="has-text-centered mt-6">
+    <div class="box has-background-dark has-text-white">
+      <p class="title is-4 has-text-white">No Favorite Recipes Yet</p>
+      <p class="subtitle is-6 has-text-white">Start adding recipes to your favorites by clicking the star icon on any recipe!</p>
+      <a href="/Proj19/index" class="button is-warning mt-4">Browse Recipes</a>
+    </div>
+  </div>
+
+  <!-- Daniel - Display filtered or all favorite recipes -->
+  <div v-if="filtered_recipes.length > 0">
+    <div v-for="r in filtered_recipes" :key="r.id" class="card mb-8">
+      <header class="card-header">
+        <p class="card-header-title">
+          <button class="is-underlined" @click="view_recipe(r)">
+            <strong>{{r.name}} - Made by {{r.author}}</strong>
+          </button>
+          <!-- Daniel - Favorite star (always filled on favorites page) -->
+          <span class="favorite-star favorited" @click="remove_from_favorites(r)" title="Remove from favorites">
+            <i class="fas fa-star"></i>
+          </span>
+        </p>
+      </header>
+      <div class="card-content">
+        <div class="content">
+          <div class="recipe-author-section">
+            <img :src="get_profile_picture(r)" 
+                 class="author-profile-pic" 
+                 :alt="r.author + ' profile picture'"
+                 @click="view_user_profile(r.author)"
+                 :title="'View ' + r.author + '\'s profile'">
+            <span class="has-text-weight-semibold">Made by {{ r.author }}</span>
+          </div>
+          
+          <strong>{{r.description}}</strong>
+          <div class="columns is-mobile">
+            <div class="column is-one-third">Type: {{ r.type }}</div>
+            <div class="column is-one-third">Servings: {{ r.servings }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daniel - Show all favorites when no search results -->
+  <div v-else-if="favorite_recipes.length > 0 && search_message">
+    <div class="has-text-centered mt-4">
+      <p class="has-text-white">No favorites match your search. <button class="button is-small is-warning" @click="clear_search">Clear search</button></p>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+<script src="/Proj19/static/js/favorites.js"></script>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base href="[[=URL('static')]]/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAAQEAAAEAIAAwAAAAFgAAACgAAAABAAAAAgAAAAEAIAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAA=="/>
+    <link rel="stylesheet" href="css/no.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <style>
+    .py4web-validation-error{margin-top:-16px; font-size:0.8em;color:red;}
+    .grid-table-wrapper{overflow-x: auto;}
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #111;
+      padding: 0 2em;
+      height: 56px;
+    }
+    .navbar-left, .navbar-center, .navbar-right {
+      display: flex;
+      align-items: center;
+    }
+    .navbar-center {
+      flex: 1;
+      justify-content: center;
+      gap: 1.5em;
+    }
+    .navbar-link {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 0.5em;
+      font-size: 1.1em;
+      transition: color 0.2s;
+    }
+    .navbar-link:hover {
+      color: #ffdd57;
+    }
+    .navbar-avatar {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ffdd57;
+      color: #222;
+      text-align: center;
+      line-height: 32px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .navbar-user {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .navbar-user ul {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 40px;
+      background: #222;
+      border-radius: 6px;
+      min-width: 160px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+    .navbar-user:hover ul {
+      display: block;
+    }
+    .navbar-user ul li {
+      padding: 0.5em 1em;
+    }
+    .navbar-user ul li a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+    }
+    .navbar-user ul li a:hover {
+      color: #ffdd57;
+    }
+    </style>
+    [[block page_head]]<!-- individual pages can customize header here -->[[end]]
+  </head>
+  <body>
+    <header>
+      <!-- Navigation bar -->
+      <nav class="navbar">
+        <div class="navbar-left">
+          <a href="[[=URL('index')]]" class="navbar-link" style="font-weight:bold;font-size:1.2em;">Recipe Manager</a>
+        </div>
+        <div class="navbar-center">
+          <a href="[[=URL('home')]]" class="navbar-link">Home</a>
+          <a href="[[=URL('index')]]" class="navbar-link">Recipes</a>
+          [[if globals().get('user'):]]
+          <a href="[[=URL('recipe')]]" class="navbar-link"><i class="fas fa-plus"></i> Create Recipe</a>
+          <!-- Daniel - Favorites tab -->
+          <a href="[[=URL('favorites')]]" class="navbar-link"><i class="fas fa-star"></i> Favorites</a>
+          [[pass]]
+        </div>
+        <div class="navbar-right">
+          [[if globals().get('user'):]]
+          <div class="navbar-user">
+            <span class="navbar-avatar">
+              [[=globals().get('user',{}).get('email','?')[0:2].upper()]]
+            </span>
+            <span class="navbar-link">[[=globals().get('user',{}).get('email','')]]</span>
+            <ul>
+              <li><a href="[[=URL('profile')]]">Profile</a></li>
+              <li><a href="[[=URL('auth/profile')]]">Edit Profile</a></li>
+              <li><a href="[[=URL('auth/change_password')]]">Change Password</a></li>
+              <li><a href="[[=URL('auth/logout')]]">Logout</a></li>
+            </ul>
+          </div>
+          [[else:]]
+          <div class="navbar-user">
+            <span class="navbar-link">Login</span>
+            <ul>
+              <li><a href="[[=URL('auth/register')]]">Sign up</a></li>
+              <li><a href="[[=URL('auth/login')]]">Log in</a></li>
+            </ul>
+          </div>
+          [[pass]]
+        </div>
+      </nav>
+    </header>
+    <!-- beginning of HTML inserted by extending template -->
+    <center>
+      <div>
+        <!-- Flash alert messages, first optional one in data-alert -->
+        <flash-alerts class="padded" data-alert="[[=globals().get('flash','')]]"></flash-alerts>
+      </div>
+      <main class="padded">
+        <!-- contect injected by extending page -->
+        [[include]]
+      </main>
+    </center>
+    <!-- end of HTML inserted by extending template -->
+    <footer class="black padded">
+      <p>
+        Made with py4web
+      </p>
+    </footer>
+  </body>
+  <!-- You've gotta have utils.js -->
+  <script src="js/utils.js"></script>
+  [[block page_scripts]]<!-- individual pages can add scripts here -->[[end]]
+</html>

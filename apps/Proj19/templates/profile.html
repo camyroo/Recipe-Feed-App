@@ -1,0 +1,227 @@
+[[extend 'layout.html']]
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+
+<style>
+    body {
+        background-color: rgb(19, 20, 21);
+        color: rgb(222, 219, 214);
+    }
+
+    .dark-input:focus {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+                                border: 3px solid #ffdd57;
+    }
+
+    .profile-section {
+        background-color: rgb(32, 34, 37);
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+</style>
+
+
+<!-- Daniel - User Profile Page -->
+<div id="profile-app" class="section">
+    <section class="hero is-warning mb-4">
+        <div class="hero-body">
+            <p class="title">User Profile</p>
+            <p class="subtitle">Manage your profile information</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-8">
+                
+                <!-- Profile Picture Section -->
+                <div class="profile-section has-text-centered">
+                    <div class="mb-4">
+                        <div class="profile-picture-container">
+                            <img v-if="profile.profile_picture" 
+                                 :src="profile.profile_picture" 
+                                 class="profile-picture" 
+                                 alt="Profile Picture">
+                            <img v-else 
+                                 src="https://bulma.io/assets/images/placeholders/128x128.png" 
+                                 class="profile-picture" 
+                                 alt="Default Profile Picture">
+                        </div>
+                    </div>
+                    
+                    <div v-if="edit_mode" class="field">
+                        <div class="file has-name is-centered">
+                            <label class="file-label">
+                                <input class="file-input" type="file" @change="handle_file_upload" accept="image/*">
+                                <span class="file-cta has-background-dark has-text-white">
+                                    <span class="file-icon">
+                                        <i class="fas fa-upload"></i>
+                                    </span>
+                                    <span class="file-label">
+                                        Choose a file…
+                                    </span>
+                                </span>
+                                <span class="file-name" v-if="selected_file">
+                                    {{ selected_file.name }}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daniel - Image Cropping Modal -->
+                <div v-if="show_crop_modal" class="crop-modal" @click="cancel_crop">
+                    <div class="crop-container" @click.stop>
+                        <h3 class="title is-4 has-text-white has-text-centered mb-4">Position Your Photo</h3>
+                        <p class="has-text-white has-text-centered mb-4">Drag the image to position it within the circle</p>
+                        
+                        <div class="image-preview-container" ref="cropContainer">
+                            <img ref="draggableImage" 
+                                 :src="temp_image_url" 
+                                 class="draggable-image"
+                                 @mousedown="start_drag"
+                                 @touchstart="start_drag"
+                                 :style="{ 
+                                     left: image_position.x + 'px', 
+                                     top: image_position.y + 'px',
+                                     width: image_scale + 'px',
+                                     height: 'auto'
+                                 }"
+                                 draggable="false">
+                            <div class="crop-circle"></div>
+                        </div>
+                        
+                        <div class="field mt-4">
+                            <label class="label has-text-white">Zoom</label>
+                            <div class="control">
+                                <input type="range" 
+                                       class="slider" 
+                                       v-model="image_scale" 
+                                       :min="scale_min" 
+                                       :max="scale_max" 
+                                       step="10">
+                            </div>
+                            <p class="has-text-white is-size-7 mt-2">Use slider to zoom, drag to position</p>
+                        </div>
+                        
+                        <div class="field is-grouped is-grouped-centered mt-4">
+                            <div class="control">
+                                <button class="button is-warning" @click="apply_crop">
+                                    <span class="icon">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    <span>Apply</span>
+                                </button>
+                            </div>
+                            <div class="control">
+                                <button class="button is-dark" @click="cancel_crop">
+                                    <span class="icon">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                    <span>Cancel</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Information Section -->
+                <div class="profile-section">
+                    <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+                        <h2 class="title is-4 has-text-white">Profile Information</h2>
+                        <button @click="toggle_edit_mode" 
+                                class="button" 
+                                :class="edit_mode ? 'is-warning' : 'is-dark'">
+                            {{ edit_mode ? 'Save Changes' : 'Edit Profile' }}
+                        </button>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Display Name</label>
+                        <div class="control">
+                            <input v-if="edit_mode" 
+                                   class="input dark-input" 
+                                   type="text" 
+                                   v-model="profile.name" 
+                                   placeholder="Enter your display name">
+                            <p v-else class="has-text-white is-size-5">
+                                {{ profile.name || 'No name set' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Email</label>
+                        <div class="control">
+                            <p class="has-text-white is-size-5">
+                                {{ user_email }}
+                            </p>
+                            <p class="help">Email cannot be changed here. Use 'Edit Profile' in the menu.</p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label has-text-white">Bio</label>
+                        <div class="control">
+                            <textarea v-if="edit_mode" 
+                                      class="textarea dark-input" 
+                                      v-model="profile.bio" 
+                                      placeholder="Tell us about yourself..."
+                                      rows="5"></textarea>
+                            <div v-else class="has-text-white">
+                                <p v-if="profile.bio" style="white-space: pre-wrap;">{{ profile.bio }}</p>
+                                <p v-else class="has-text-grey">No bio added yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="error_message" class="notification is-danger">
+                        {{ error_message }}
+                    </div>
+
+                    <div v-if="success_message" class="notification is-success">
+                        {{ success_message }}
+                    </div>
+                </div>
+
+                <!-- User Statistics Section -->
+                <div class="profile-section">
+                    <h2 class="title is-4 has-text-white mb-4">Your Recipe Statistics</h2>
+                    <div class="columns is-mobile has-text-centered">
+                        <div class="column">
+                            <p class="title is-3 has-text-warning">{{ user_recipe_count }}</p>
+                            <p class="subtitle is-6 has-text-white">Recipes Created</p>
+                        </div>
+                        <div class="column">
+                            <p class="title is-3 has-text-warning">0</p>
+                            <p class="subtitle is-6 has-text-white">Favorites</p>
+                        </div>
+                        <div class="column">
+                            <p class="title is-3 has-text-warning">0</p>
+                            <p class="subtitle is-6 has-text-white">Reviews</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Daniel - Pass user data to Vue app
+    const user_email = "[[=user.get('email', '')]]";
+    const user_id = "[[=user.get('id', '')]]";
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+<script src="/Proj19/static/js/profile.js"></script>
