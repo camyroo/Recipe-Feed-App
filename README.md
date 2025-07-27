@@ -1,6 +1,6 @@
 # Custom Recipe Manager
 
-Custom Recipe Manager is a web-based application built with [py4web](https://py4web.com/) that allows users to create, browse, and share cooking recipes. Users can add ingredients with detailed nutritional info, manage their personal recipe collection, and explore public recipes made by others.
+Custom Recipe Manager is a web-based application built with [py4web](https://py4web.com/), vue.js and bulma that allows users to create, browse, and share cooking recipes. Users can add ingredients with detailed nutritional info, manage their personal recipe collection, and explore public recipes made by others.
 
 ## Features
 
